@@ -21,6 +21,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as vscode from 'vscode';
 import { URI } from 'vscode-uri';
+import { initDefinitionProvider }  from "./DefinitionProvider"
 import { State } from './ExtensionState';
 import { HintMessage, Commands, StateChangeParams, LogLevel, LogParams, UnhandledViperServerMessageTypeParams, FlushCacheParams, Backend, Position, VerificationNotStartedParams } from './ViperProtocol';
 import { Log } from './Log';
@@ -51,7 +52,9 @@ async function internalActivate(context: vscode.ExtensionContext): Promise<Viper
     if (activated) {
         throw new Error(`Viper-IDE extension is already activated`);
     }
-    
+
+    await initDefinitionProvider();
+
     Helper.loadViperFileExtensions();
     Log.log('The ViperIDE is starting up.', LogLevel.Info);
     const ownPackageJson = vscode.extensions.getExtension("viper-admin.viper").packageJSON;
@@ -174,7 +177,7 @@ async function initializeState(location: Location): Promise<void> {
     } else {
         Log.log("No active text editor found", LogLevel.Info);
     }
-    
+
     // get backends from configuration and pick first one as the 'default' backend:
     const backends = await Settings.getVerificationBackends(location);
     if (backends.length === 0) {
@@ -339,11 +342,11 @@ function showNotReadyHint(): void {
 
 function registerClientHandlers(): void {
     State.client.onNotification(Commands.StateChange, (params: StateChangeParams) => State.verificationController.handleStateChange(params));
-        
+
     State.client.onNotification(Commands.Hint, (data: HintMessage) => {
         Log.hint(data.message, "Viper", data.showSettingsButton, data.showViperToolsUpdateButton);
     });
-        
+
     State.client.onNotification(Commands.Log, (params: LogParams) => {
         Log.log(params.data, params.logLevel, true);
     });
@@ -352,7 +355,7 @@ function registerClientHandlers(): void {
     // unexpected message may have been destined for them.
     State.client.onNotification(
         Commands.UnhandledViperServerMessageType,
-        (params: UnhandledViperServerMessageTypeParams) => { 
+        (params: UnhandledViperServerMessageTypeParams) => {
             Log.log(`Received non-standard ViperServer message of type ${params.msgType}.`, LogLevel.Default);
             State.viperApi.notifyServerMessage(params.msgType, params.msg);
         }
