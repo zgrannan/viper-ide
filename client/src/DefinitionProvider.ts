@@ -34,7 +34,7 @@ export async function initDefinitionProvider(): Promise<void> {
   await Parser.init();
   const parser = new Parser();
 
-  // Version 0.1
+  // Version 0.2
   const treeSitterViperWasmPath = path.join(
     __dirname,
     "tree-sitter-Viper.wasm"
@@ -64,12 +64,12 @@ export async function initDefinitionProvider(): Promise<void> {
         const functionIdentifiers = getLocationsForQuery(
           document,
           tree,
-          `((function (ident) @name) (#eq? @name "${node.text}"))`
+          `((function name: (ident) @name) (#eq? @name "${node.text}"))`
         );
         const domainFunctionIdentifiers = getLocationsForQuery(
           document,
           tree,
-          `((domain_function (ident) @name) (#eq? @name "${node.text}"))`
+          `((domain_function name: (ident) @name) (#eq? @name "${node.text}"))`
         );
         return [...functionIdentifiers, ...domainFunctionIdentifiers];
       } else {
