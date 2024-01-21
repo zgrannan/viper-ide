@@ -61,17 +61,12 @@ export async function initDefinitionProvider(): Promise<void> {
       const node = tree.rootNode.descendantForPosition(tsPosition);
 
       if (node.type === "ident") {
-        const functionIdentifiers = getLocationsForQuery(
-          document,
-          tree,
-          `((function name: (ident) @name) (#eq? @name "${node.text}"))`
-        );
-        const domainFunctionIdentifiers = getLocationsForQuery(
-          document,
-          tree,
-          `((domain_function name: (ident) @name) (#eq? @name "${node.text}"))`
-        );
-        return [...functionIdentifiers, ...domainFunctionIdentifiers];
+        const queries = [
+          `((function name: (ident) @name) (#eq? @name "${node.text}"))`,
+          `((domain_function name: (ident) @name) (#eq? @name "${node.text}"))`,
+          `((method name: (ident) @name) (#eq? @name "${node.text}"))`
+        ]
+        return queries.flatMap(query => getLocationsForQuery(document, tree, query));
       } else {
         Log.log(`Node ${node.text} was not an identifier`, LogLevel.Info);
         return [];
