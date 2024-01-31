@@ -45,8 +45,8 @@ export async function initDefinitionProvider(): Promise<void> {
   parser.setLanguage(ViperLanguage);
   Log.log("Loaded parser", LogLevel.Info);
 
-  const provider = vscode.languages.registerDefinitionProvider("viper", {
-    provideDefinition(document, position, token) {
+  vscode.languages.registerDefinitionProvider("viper", {
+    provideDefinition(document, position) {
       Log.log("tried to get definition", LogLevel.Info);
       const text = document.getText();
       const tree = parser.parse(text);
