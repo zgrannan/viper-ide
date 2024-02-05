@@ -34,7 +34,7 @@ export async function initDefinitionProvider(): Promise<void> {
   await Parser.init();
   const parser = new Parser();
 
-  // Version 0.4
+  // Version 0.5
   const treeSitterViperWasmPath = path.join(
     __dirname,
     "tree-sitter-Viper.wasm"
@@ -62,10 +62,11 @@ export async function initDefinitionProvider(): Promise<void> {
 
       if (node.type === "ident") {
         const queries = [
-          `((predicate name: (ident) @name) (#eq? @name "${node.text}"))`,
-          `((function name: (ident) @name) (#eq? @name "${node.text}"))`,
+          `((domain name: (ident) @name) (#eq? @name "${node.text}"))`,
           `((domain_function name: (ident) @name) (#eq? @name "${node.text}"))`,
-          `((method name: (ident) @name) (#eq? @name "${node.text}"))`
+          `((function name: (ident) @name) (#eq? @name "${node.text}"))`,
+          `((method name: (ident) @name) (#eq? @name "${node.text}"))`,
+          `((predicate name: (ident) @name) (#eq? @name "${node.text}"))`,
         ]
         return queries.flatMap(query => getLocationsForQuery(document, tree, query));
       } else {
